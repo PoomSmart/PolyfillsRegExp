@@ -73,7 +73,7 @@
     globalThis.__lookbehind_partial_replacements = regexReplacements;
 
     function normalizeRegexSource(source) {
-        return source.replace(/\\\\/g, "\\");
+        return original.replace.call(source, /\\\\/g, "\\");
     }
 
     function checkForRegexReplacement(source, flags) {
@@ -443,6 +443,14 @@
         return baseRegExp;
     }
 
+    function callNativeStringMethod(method, str, pattern, arg) {
+        const valid = pattern && pattern._regexp;
+        if (valid) pattern._regexp.lastIndex = pattern.lastIndex;
+        const result = method.call(str, valid ? pattern._regexp : pattern, arg);
+        if (valid) pattern.lastIndex = pattern._regexp.lastIndex;
+        return result;
+    }
+
     function removeIndicesFlag(flags) {
         if (!flags.includes("d") || nativeSupportsIndices) {
             return flags;
@@ -452,10 +460,10 @@
 
     function expandReplacementString(replacement, match, str, offset) {
         let result = String(replacement);
-        result = result.replace(/\$\$/g, "$");
-        result = result.replace(/\$&/g, match[0]);
-        result = result.replace(/\$`/g, str.slice(0, offset));
-        result = result.replace(/\$'/g, str.slice(offset + match[0].length));
+        result = original.replace.call(result, /\$\$/g, "$");
+        result = original.replace.call(result, /\$&/g, match[0]);
+        result = original.replace.call(result, /\$`/g, str.slice(0, offset));
+        result = original.replace.call(result, /\$'/g, str.slice(offset + match[0].length));
         for (let i = 1; i < match.length; i++) {
             const capture = match[i] === undefined ? "" : match[i];
             result = result.split("$" + i).join(capture);
@@ -780,14 +788,14 @@
             return result + str.slice(lastIndex);
         }
 
-        return original.replace.call(str, search, replacement);
+        return callNativeStringMethod(original.replace, str, search, replacement);
     };
 
     String.prototype.match = function (pattern) {
         const str = String(this);
         if (!isRegExpLike(pattern)) pattern = new RegExp(pattern);
         if (!pattern._lookbehindInfo) {
-            return original.match.call(str, pattern);
+            return callNativeStringMethod(original.match, str, pattern);
         }
         if (pattern.global) {
             const results = [];
@@ -805,7 +813,7 @@
         const str = String(this);
         if (!isRegExpLike(pattern)) pattern = new RegExp(pattern);
         if (!pattern._lookbehindInfo) {
-            return original.search.call(str, pattern);
+            return callNativeStringMethod(original.search, str, pattern);
         }
         const m = pattern.exec(str);
         return m ? m.index : -1;
@@ -817,7 +825,7 @@
             return original.split.call(str, separator, limit);
         }
         if (!separator._lookbehindInfo) {
-            return original.split.call(str, separator, limit);
+            return callNativeStringMethod(original.split, str, separator, limit);
         }
 
         const re = separator.global
