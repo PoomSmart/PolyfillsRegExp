@@ -1,7 +1,6 @@
 (() => {
     if (globalThis.__lookbehind_polyfill_applied) return;
     globalThis.__lookbehind_polyfill_applied = true;
-    if (window.location.hostname === 'www.americanexpress.com') return;
 
     const NativeRegExp = globalThis.RegExp;
 

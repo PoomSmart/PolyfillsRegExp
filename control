@@ -1,6 +1,6 @@
 Package: com.ps.polyfillsregexp
 Name: RegExp Lookbehind/Indices (Polyfills)
-Version: 1.3.0
+Version: 1.3.1
 Architecture: iphoneos-arm
 Description: Polyfills for RegExp lookbehind assertions (iOS < 16.4) and indices (iOS < 15.0) in JavaScript.
 Maintainer: PoomSmart
